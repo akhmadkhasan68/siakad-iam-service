@@ -1,0 +1,22 @@
+[
+    {
+        "code": "SMAN_1_MLG",
+        "name": "SMA Negeri 1 Malang",
+        "status": "ACTIVE"
+    },
+    {
+        "code": "SMAN_2_MLG",
+        "name": "SMA Negeri 2 Malang",
+        "status": "ACTIVE"
+    },
+    {
+        "code": "SMAN_3_MLG",
+        "name": "SMA Negeri 3 Malang",
+        "status": "ACTIVE"
+    },
+    {
+        "code": "SMAN_18_SBY",
+        "name": "SMA Negeri 18 Surabaya",
+        "status": "ACTIVE"
+    }
+]

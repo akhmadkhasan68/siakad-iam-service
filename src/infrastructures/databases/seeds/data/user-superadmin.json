@@ -1,0 +1,37 @@
+[
+    {
+        "fullname": "Super Admin",
+        "email": "admin.1@admin.com",
+        "password": "password",
+        "phone_number": "6281233221221",
+        "organization_code": null
+    },
+    {
+        "fullname": "Super Admin SMAN 1 Malang",
+        "email": "admin@sman1mlg.sch.id",
+        "password": "password",
+        "phone_number": "6281233221223",
+        "organization_code": "SMAN_1_MLG"
+    },
+    {
+        "fullname": "Super Admin SMAN 2 Malang",
+        "email": "admin@sman2mlg.sch.id",
+        "password": "password",
+        "phone_number": "6281233221224",
+        "organization_code": "SMAN_2_MLG"
+    },
+    {
+        "fullname": "Super Admin SMAN 3 Malang",
+        "email": "admin@sman3mlg.sch.id",
+        "password": "password",
+        "phone_number": "6281233221225",
+        "organization_code": "SMAN_3_MLG"
+    },
+    {
+        "fullname": "Super Admin SMAN 18 Surabaya",
+        "email": "admin@sman18sby.sch.id",
+        "password": "password",
+        "phone_number": "6281233221226",
+        "organization_code": "SMAN_18_SBY"
+    }
+]

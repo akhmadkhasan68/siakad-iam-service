@@ -1,0 +1,128 @@
+import { MigrationInterface, QueryRunner } from 'typeorm';
+
+export class InitDatabase1755948511935 implements MigrationInterface {
+    name = 'InitDatabase1755948511935'
+
+    public async up(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query('CREATE TABLE "actions" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "code" character varying(50) NOT NULL, "name" character varying(100) NOT NULL, "is_active" boolean NOT NULL DEFAULT false, CONSTRAINT "PK_7bfb822f56be449c0b8adbf83cf" PRIMARY KEY ("id"))');
+        await queryRunner.query('CREATE TABLE "resources" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "code" character varying(100) NOT NULL, "name" character varying(255) NOT NULL, "is_active" boolean NOT NULL DEFAULT false, CONSTRAINT "PK_632484ab9dff41bba94f9b7c85e" PRIMARY KEY ("id"))');
+        await queryRunner.query('CREATE TABLE "permissions" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "resource_id" uuid NOT NULL, "action_id" uuid NOT NULL, "description" text, CONSTRAINT "PK_920331560282b8bd21bb02290df" PRIMARY KEY ("id"))');
+        await queryRunner.query('CREATE UNIQUE INDEX "IDX_ec316053e53b183188f79ef954" ON "permissions" ("resource_id", "action_id") ');
+        await queryRunner.query('CREATE TABLE "roles" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "organization_id" uuid, "code" text NOT NULL, "name" text NOT NULL, "description" text, CONSTRAINT "PK_c1433d71a4838793a49dcad46ab" PRIMARY KEY ("id"))');
+        await queryRunner.query('CREATE UNIQUE INDEX "IDX_a02c2c0a4df16faeb0d92d4453" ON "roles" ("organization_id", "code") ');
+        await queryRunner.query('CREATE TABLE "user_roles" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "user_id" uuid NOT NULL, "role_id" uuid NOT NULL, "organization_id" uuid, CONSTRAINT "PK_8acd5cf26ebd158416f477de799" PRIMARY KEY ("id"))');
+        await queryRunner.query('CREATE UNIQUE INDEX "IDX_23ed6f04fe43066df08379fd03" ON "user_roles" ("user_id", "role_id") ');
+        await queryRunner.query('CREATE TABLE "organizations" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "code" text NOT NULL, "name" text NOT NULL, "status" text NOT NULL DEFAULT \'ACTIVE\', CONSTRAINT "UQ_7e27c3b62c681fbe3e2322535f2" UNIQUE ("code"), CONSTRAINT "PK_6b031fcd0863e3f6b44230163f9" PRIMARY KEY ("id"))');
+        await queryRunner.query('CREATE TABLE "groups" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "organization_id" uuid, "code" text NOT NULL, "name" text NOT NULL, CONSTRAINT "PK_659d1483316afb28afd3a90646e" PRIMARY KEY ("id"))');
+        await queryRunner.query('CREATE UNIQUE INDEX "IDX_6c843bde70a315a6c51d43f7c0" ON "groups" ("organization_id", "code") ');
+        await queryRunner.query('CREATE TABLE "group_members" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "group_id" uuid NOT NULL, "user_id" uuid NOT NULL, CONSTRAINT "PK_86446139b2c96bfd0f3b8638852" PRIMARY KEY ("id"))');
+        await queryRunner.query('CREATE UNIQUE INDEX "IDX_f5939ee0ad233ad35e03f5c65c" ON "group_members" ("group_id", "user_id") ');
+        await queryRunner.query('CREATE TABLE "sessions" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "user_id" uuid NOT NULL, "last_seen_at" TIMESTAMP WITH TIME ZONE, "ip" inet, "user_agent" text, "revoked_at" TIMESTAMP WITH TIME ZONE, CONSTRAINT "PK_3238ef96f18b355b671619111bc" PRIMARY KEY ("id"))');
+        await queryRunner.query('CREATE INDEX "IDX_085d540d9f418cfbdc7bd55bb1" ON "sessions" ("user_id") ');
+        await queryRunner.query('CREATE TABLE "refresh_tokens" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "user_id" uuid NOT NULL, "session_id" uuid NOT NULL, "token" text NOT NULL, "ip" inet, "user_agent" text, "issued_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(), "expires_at" TIMESTAMP WITH TIME ZONE NOT NULL, "revoked_at" TIMESTAMP WITH TIME ZONE, CONSTRAINT "PK_7d8bee0204106019488c4c50ffa" PRIMARY KEY ("id"))');
+        await queryRunner.query('CREATE UNIQUE INDEX "IDX_b2a08c5c07519df846bef93d17" ON "refresh_tokens" ("user_id", "session_id") ');
+        await queryRunner.query('CREATE TABLE "user_credential_password_history" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "user_id" uuid NOT NULL, "password" text NOT NULL, CONSTRAINT "PK_d024c511bad69742e8f93d8db1f" PRIMARY KEY ("id"))');
+        await queryRunner.query('CREATE INDEX "IDX_deffad4f95c137ad7dee53cf74" ON "user_credential_password_history" ("user_id", "created_at") ');
+        await queryRunner.query('CREATE TABLE "user_credential_passwords" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "user_id" uuid NOT NULL, "password" text NOT NULL, CONSTRAINT "PK_065345296481e0ef36c2841760f" PRIMARY KEY ("id"))');
+        await queryRunner.query('CREATE UNIQUE INDEX "IDX_9270654b59cfc57b2d92572f42" ON "user_credential_passwords" ("user_id") ');
+        await queryRunner.query('CREATE TABLE "user_emails" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "user_id" uuid NOT NULL, "email" text NOT NULL, "is_primary" boolean NOT NULL DEFAULT false, "is_verified" boolean NOT NULL DEFAULT false, "verified_at" TIMESTAMP WITH TIME ZONE, CONSTRAINT "PK_3ef6c4be97ba94ea3ba65362ad0" PRIMARY KEY ("id"))');
+        await queryRunner.query('CREATE UNIQUE INDEX "IDX_6594597afde633cfeab9a806e4" ON "user_emails" ("email") ');
+        await queryRunner.query('CREATE TABLE "user_phones" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "user_id" uuid NOT NULL, "phone_e164" text NOT NULL, "is_primary" boolean NOT NULL DEFAULT false, "is_verified" boolean NOT NULL DEFAULT false, "verified_at" TIMESTAMP WITH TIME ZONE, CONSTRAINT "PK_975f5d595e466bdcbb7b0afc2b1" PRIMARY KEY ("id"))');
+        await queryRunner.query('CREATE UNIQUE INDEX "IDX_0990202281d58188c350423042" ON "user_phones" ("phone_e164") ');
+        await queryRunner.query('CREATE TABLE "users" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "email" text NOT NULL, "full_name" text NOT NULL, "type" character varying NOT NULL, CONSTRAINT "PK_a3ffb1c0c8416b9fc6f907b7433" PRIMARY KEY ("id"))');
+        await queryRunner.query('CREATE UNIQUE INDEX "IDX_97672ac88f789774dd47f7c8be" ON "users" ("email") ');
+        await queryRunner.query('CREATE TABLE "user_organizations" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "user_id" uuid NOT NULL, "organization_id" uuid NOT NULL, "is_default" boolean NOT NULL DEFAULT false, CONSTRAINT "PK_51ed3f60fdf013ee5041d2d4d3d" PRIMARY KEY ("id"))');
+        await queryRunner.query('CREATE UNIQUE INDEX "IDX_f143fa57706c0fb840301ad704" ON "user_organizations" ("user_id", "organization_id") ');
+        await queryRunner.query('CREATE TABLE "token_denylist" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "jti" uuid NOT NULL, "reason" text, "expires_at" TIMESTAMP WITH TIME ZONE NOT NULL, CONSTRAINT "PK_d04056c07089aa32c7963578aca" PRIMARY KEY ("id"))');
+        await queryRunner.query('CREATE INDEX "IDX_6104ff03f45c42055d44abb8e2" ON "token_denylist" ("expires_at") ');
+        await queryRunner.query('CREATE UNIQUE INDEX "IDX_1fc5b7eb96f7d4448401aa72bc" ON "token_denylist" ("jti") ');
+        await queryRunner.query('CREATE TABLE "jwt_keys" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "kid" text NOT NULL, "alg" text NOT NULL, "public_jwk" jsonb, "is_active" boolean NOT NULL DEFAULT true, "note" text, "rotated_at" TIMESTAMP WITH TIME ZONE, "expires_at" TIMESTAMP WITH TIME ZONE, CONSTRAINT "UQ_61d11f90b86f688367a911d5eb8" UNIQUE ("kid"), CONSTRAINT "PK_5b1f7509e0d3865a4f252e0d992" PRIMARY KEY ("id"))');
+        await queryRunner.query('CREATE INDEX "IDX_b811b5911f3ee084048aa6f161" ON "jwt_keys" ("is_active") ');
+        await queryRunner.query('CREATE INDEX "IDX_eb94d2940b4b6b85b41e6b93b2" ON "jwt_keys" ("kid", "is_active") ');
+        await queryRunner.query('CREATE TABLE "role_permissions" ("permissions_id" uuid NOT NULL, "roles_id" uuid NOT NULL, CONSTRAINT "PK_3a2404462ad8373a26704fb1f1c" PRIMARY KEY ("permissions_id", "roles_id"))');
+        await queryRunner.query('CREATE INDEX "IDX_bae04782e4d2b4d4c978528970" ON "role_permissions" ("permissions_id") ');
+        await queryRunner.query('CREATE INDEX "IDX_ad074b0f95ff0488162868be2c" ON "role_permissions" ("roles_id") ');
+        await queryRunner.query('ALTER TABLE "permissions" ADD CONSTRAINT "FK_a5b7bf2f14f8df49fc610e9a8be" FOREIGN KEY ("resource_id") REFERENCES "resources"("id") ON DELETE NO ACTION ON UPDATE NO ACTION');
+        await queryRunner.query('ALTER TABLE "permissions" ADD CONSTRAINT "FK_b260ff500cf388b8c01569a97e1" FOREIGN KEY ("action_id") REFERENCES "actions"("id") ON DELETE NO ACTION ON UPDATE NO ACTION');
+        await queryRunner.query('ALTER TABLE "roles" ADD CONSTRAINT "FK_c328a1ecd12a5f153a96df4509e" FOREIGN KEY ("organization_id") REFERENCES "organizations"("id") ON DELETE NO ACTION ON UPDATE NO ACTION');
+        await queryRunner.query('ALTER TABLE "user_roles" ADD CONSTRAINT "FK_87b8888186ca9769c960e926870" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE NO ACTION');
+        await queryRunner.query('ALTER TABLE "user_roles" ADD CONSTRAINT "FK_b23c65e50a758245a33ee35fda1" FOREIGN KEY ("role_id") REFERENCES "roles"("id") ON DELETE CASCADE ON UPDATE NO ACTION');
+        await queryRunner.query('ALTER TABLE "user_roles" ADD CONSTRAINT "FK_1503dd4274109b89d2429101e42" FOREIGN KEY ("organization_id") REFERENCES "organizations"("id") ON DELETE CASCADE ON UPDATE NO ACTION');
+        await queryRunner.query('ALTER TABLE "groups" ADD CONSTRAINT "FK_f7f1b335edff519132aa2163fef" FOREIGN KEY ("organization_id") REFERENCES "organizations"("id") ON DELETE NO ACTION ON UPDATE NO ACTION');
+        await queryRunner.query('ALTER TABLE "group_members" ADD CONSTRAINT "FK_2c840df5db52dc6b4a1b0b69c6e" FOREIGN KEY ("group_id") REFERENCES "groups"("id") ON DELETE CASCADE ON UPDATE NO ACTION');
+        await queryRunner.query('ALTER TABLE "group_members" ADD CONSTRAINT "FK_20a555b299f75843aa53ff8b0ee" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE NO ACTION');
+        await queryRunner.query('ALTER TABLE "sessions" ADD CONSTRAINT "FK_085d540d9f418cfbdc7bd55bb19" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE NO ACTION');
+        await queryRunner.query('ALTER TABLE "refresh_tokens" ADD CONSTRAINT "FK_3ddc983c5f7bcf132fd8732c3f4" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE NO ACTION');
+        await queryRunner.query('ALTER TABLE "refresh_tokens" ADD CONSTRAINT "FK_3bf308fa93da3966f9e76fcfba4" FOREIGN KEY ("session_id") REFERENCES "sessions"("id") ON DELETE CASCADE ON UPDATE NO ACTION');
+        await queryRunner.query('ALTER TABLE "user_credential_password_history" ADD CONSTRAINT "FK_54e4bc96fd88d5807a23d6acc1a" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE NO ACTION');
+        await queryRunner.query('ALTER TABLE "user_credential_passwords" ADD CONSTRAINT "FK_9270654b59cfc57b2d92572f42d" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE NO ACTION');
+        await queryRunner.query('ALTER TABLE "user_emails" ADD CONSTRAINT "FK_2e88b95787b903d46ab3cc3eb91" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE NO ACTION');
+        await queryRunner.query('ALTER TABLE "user_phones" ADD CONSTRAINT "FK_96bd55026671b792bb3ce699ffd" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE NO ACTION');
+        await queryRunner.query('ALTER TABLE "user_organizations" ADD CONSTRAINT "FK_6881b23cd1a8924e4bf61515fbb" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE NO ACTION');
+        await queryRunner.query('ALTER TABLE "user_organizations" ADD CONSTRAINT "FK_9dae16cdea66aeba1eb6f6ddf29" FOREIGN KEY ("organization_id") REFERENCES "organizations"("id") ON DELETE CASCADE ON UPDATE NO ACTION');
+        await queryRunner.query('ALTER TABLE "role_permissions" ADD CONSTRAINT "FK_bae04782e4d2b4d4c978528970c" FOREIGN KEY ("permissions_id") REFERENCES "permissions"("id") ON DELETE CASCADE ON UPDATE CASCADE');
+        await queryRunner.query('ALTER TABLE "role_permissions" ADD CONSTRAINT "FK_ad074b0f95ff0488162868be2c7" FOREIGN KEY ("roles_id") REFERENCES "roles"("id") ON DELETE CASCADE ON UPDATE CASCADE');
+    }
+
+    public async down(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query('ALTER TABLE "role_permissions" DROP CONSTRAINT "FK_ad074b0f95ff0488162868be2c7"');
+        await queryRunner.query('ALTER TABLE "role_permissions" DROP CONSTRAINT "FK_bae04782e4d2b4d4c978528970c"');
+        await queryRunner.query('ALTER TABLE "user_organizations" DROP CONSTRAINT "FK_9dae16cdea66aeba1eb6f6ddf29"');
+        await queryRunner.query('ALTER TABLE "user_organizations" DROP CONSTRAINT "FK_6881b23cd1a8924e4bf61515fbb"');
+        await queryRunner.query('ALTER TABLE "user_phones" DROP CONSTRAINT "FK_96bd55026671b792bb3ce699ffd"');
+        await queryRunner.query('ALTER TABLE "user_emails" DROP CONSTRAINT "FK_2e88b95787b903d46ab3cc3eb91"');
+        await queryRunner.query('ALTER TABLE "user_credential_passwords" DROP CONSTRAINT "FK_9270654b59cfc57b2d92572f42d"');
+        await queryRunner.query('ALTER TABLE "user_credential_password_history" DROP CONSTRAINT "FK_54e4bc96fd88d5807a23d6acc1a"');
+        await queryRunner.query('ALTER TABLE "refresh_tokens" DROP CONSTRAINT "FK_3bf308fa93da3966f9e76fcfba4"');
+        await queryRunner.query('ALTER TABLE "refresh_tokens" DROP CONSTRAINT "FK_3ddc983c5f7bcf132fd8732c3f4"');
+        await queryRunner.query('ALTER TABLE "sessions" DROP CONSTRAINT "FK_085d540d9f418cfbdc7bd55bb19"');
+        await queryRunner.query('ALTER TABLE "group_members" DROP CONSTRAINT "FK_20a555b299f75843aa53ff8b0ee"');
+        await queryRunner.query('ALTER TABLE "group_members" DROP CONSTRAINT "FK_2c840df5db52dc6b4a1b0b69c6e"');
+        await queryRunner.query('ALTER TABLE "groups" DROP CONSTRAINT "FK_f7f1b335edff519132aa2163fef"');
+        await queryRunner.query('ALTER TABLE "user_roles" DROP CONSTRAINT "FK_1503dd4274109b89d2429101e42"');
+        await queryRunner.query('ALTER TABLE "user_roles" DROP CONSTRAINT "FK_b23c65e50a758245a33ee35fda1"');
+        await queryRunner.query('ALTER TABLE "user_roles" DROP CONSTRAINT "FK_87b8888186ca9769c960e926870"');
+        await queryRunner.query('ALTER TABLE "roles" DROP CONSTRAINT "FK_c328a1ecd12a5f153a96df4509e"');
+        await queryRunner.query('ALTER TABLE "permissions" DROP CONSTRAINT "FK_b260ff500cf388b8c01569a97e1"');
+        await queryRunner.query('ALTER TABLE "permissions" DROP CONSTRAINT "FK_a5b7bf2f14f8df49fc610e9a8be"');
+        await queryRunner.query('DROP INDEX "public"."IDX_ad074b0f95ff0488162868be2c"');
+        await queryRunner.query('DROP INDEX "public"."IDX_bae04782e4d2b4d4c978528970"');
+        await queryRunner.query('DROP TABLE "role_permissions"');
+        await queryRunner.query('DROP INDEX "public"."IDX_eb94d2940b4b6b85b41e6b93b2"');
+        await queryRunner.query('DROP INDEX "public"."IDX_b811b5911f3ee084048aa6f161"');
+        await queryRunner.query('DROP TABLE "jwt_keys"');
+        await queryRunner.query('DROP INDEX "public"."IDX_1fc5b7eb96f7d4448401aa72bc"');
+        await queryRunner.query('DROP INDEX "public"."IDX_6104ff03f45c42055d44abb8e2"');
+        await queryRunner.query('DROP TABLE "token_denylist"');
+        await queryRunner.query('DROP INDEX "public"."IDX_f143fa57706c0fb840301ad704"');
+        await queryRunner.query('DROP TABLE "user_organizations"');
+        await queryRunner.query('DROP INDEX "public"."IDX_97672ac88f789774dd47f7c8be"');
+        await queryRunner.query('DROP TABLE "users"');
+        await queryRunner.query('DROP INDEX "public"."IDX_0990202281d58188c350423042"');
+        await queryRunner.query('DROP TABLE "user_phones"');
+        await queryRunner.query('DROP INDEX "public"."IDX_6594597afde633cfeab9a806e4"');
+        await queryRunner.query('DROP TABLE "user_emails"');
+        await queryRunner.query('DROP INDEX "public"."IDX_9270654b59cfc57b2d92572f42"');
+        await queryRunner.query('DROP TABLE "user_credential_passwords"');
+        await queryRunner.query('DROP INDEX "public"."IDX_deffad4f95c137ad7dee53cf74"');
+        await queryRunner.query('DROP TABLE "user_credential_password_history"');
+        await queryRunner.query('DROP INDEX "public"."IDX_b2a08c5c07519df846bef93d17"');
+        await queryRunner.query('DROP TABLE "refresh_tokens"');
+        await queryRunner.query('DROP INDEX "public"."IDX_085d540d9f418cfbdc7bd55bb1"');
+        await queryRunner.query('DROP TABLE "sessions"');
+        await queryRunner.query('DROP INDEX "public"."IDX_f5939ee0ad233ad35e03f5c65c"');
+        await queryRunner.query('DROP TABLE "group_members"');
+        await queryRunner.query('DROP INDEX "public"."IDX_6c843bde70a315a6c51d43f7c0"');
+        await queryRunner.query('DROP TABLE "groups"');
+        await queryRunner.query('DROP TABLE "organizations"');
+        await queryRunner.query('DROP INDEX "public"."IDX_23ed6f04fe43066df08379fd03"');
+        await queryRunner.query('DROP TABLE "user_roles"');
+        await queryRunner.query('DROP INDEX "public"."IDX_a02c2c0a4df16faeb0d92d4453"');
+        await queryRunner.query('DROP TABLE "roles"');
+        await queryRunner.query('DROP INDEX "public"."IDX_ec316053e53b183188f79ef954"');
+        await queryRunner.query('DROP TABLE "permissions"');
+        await queryRunner.query('DROP TABLE "resources"');
+        await queryRunner.query('DROP TABLE "actions"');
+    }
+
+}
