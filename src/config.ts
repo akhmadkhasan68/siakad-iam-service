@@ -88,4 +88,8 @@ export const config = {
         ), // 5 seconds
         retryAttempts: +(process.env.QUEUE_RETRY_ATTEMPTS || 3), // 3 attempts
     },
+    nats: {
+        url: process.env.NATS_URL || 'nats://localhost:4222',
+        queueGroup: process.env.NATS_QUEUE_GROUP || 'iam-service-group',
+    },
 } as const;

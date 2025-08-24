@@ -1,5 +1,6 @@
 import { VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as sentry from '@sentry/nestjs';
@@ -30,6 +31,15 @@ async function bootstrap() {
     });
 
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+    // Enable Microservices App Using NATS
+    app.connectMicroservice<MicroserviceOptions>({
+        transport: Transport.NATS,
+        options: {
+            servers: [`${config.nats.url}`],
+            queue: config.nats.queueGroup,
+        },
+    });
 
     // Enable CORS
     app.enableCors();
@@ -85,6 +95,7 @@ async function bootstrap() {
         SwaggerModule.createDocument(app, swaggerConfig);
     SwaggerModule.setup('api', app, documentFactory);
 
+    await app.startAllMicroservices();
     await app.listen(config.app.port);
 }
 
